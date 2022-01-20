@@ -10,25 +10,17 @@ using namespace std;
 #define EDGE_SIZE 2
 //------------------------------------------------------------------------------
 
-<<<<<<< HEAD
 int v1;
 int v2;
 int n;
 int m;
 
-void readInput(vector<int> adj[]) {
-    for(int i = 0; i < m; i++){
-        int x;
-        int y;
-        assert(scanf("%d %d", &x, &y)==2);
-=======
 void readInput(vector<int> adj[], int m)
 {
     for (int i = 0; i < m; i++)
     {
         int x, y;
-        scanf("%d %d", &x, &y);
->>>>>>> 3d5c67b247e6646268a9478f21f1f73239fad5f9
+        assert(scanf("%d %d", &x, &y)==2);
         adj[x].push_back(y);
     }
 }
@@ -72,17 +64,8 @@ int main()
 {   
     int v1, v2 , n, m;
 
-<<<<<<< HEAD
     assert(scanf("%d %d", &v1, &v2)==2);
     assert(scanf("%d %d", &n, &m)==2);
-    vector<int> adj[n+1];
-    readInput(adj);
-    verifyTree(adj);
-    printTree(adj);
-=======
-    scanf("%d %d", &v1, &v2);
-    scanf("%d %d", &n, &m);
-
     vector<int> adj[n + 1];
     readInput(adj, m);
 
@@ -90,7 +73,7 @@ int main()
         cout << "0\n";
     else
         lca(adj, n, v1, v2);
->>>>>>> 3d5c67b247e6646268a9478f21f1f73239fad5f9
+    printTree(adj,m);
 
     return 0;
 }
