@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ void readInput(vector<int> adj[]) {
     for(int i = 0; i < m; i++){
         int x;
         int y;
-        scanf("%d %d", &x, &y);
+        assert(scanf("%d %d", &x, &y)==2);
         adj[x].push_back(y);
     }
 }
@@ -48,11 +49,12 @@ int printTree(vector<int> adj[]){
 
 int main() {
 
-    scanf("%d %d", &v1, &v2);
-    scanf("%d %d", &n, &m);
+    assert(scanf("%d %d", &v1, &v2)==2);
+    assert(scanf("%d %d", &n, &m)==2);
     vector<int> adj[n+1];
     readInput(adj);
     verifyTree(adj);
+    printTree(adj);
 
     return 0;
 }
