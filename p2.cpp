@@ -7,7 +7,6 @@
 
 using namespace std;
 
-#define EDGE_SIZE 2
 //------------------------------------------------------------------------------
 
 int v1;
@@ -15,33 +14,23 @@ int v2;
 int n;
 int m;
 
-void adjGraph(vector<int> adj[], int m) //graph
+void readInput(vector<int> reversedGraph[], int m)
 {
     for (int i = 0; i < m; i++)
     {
         int x, y;
         assert(scanf("%d %d", &x, &y)==2);
-        adj[x].push_back(y);
+        reversedGraph[y].push_back(x);
     }
 }
 
-void adjReverseGraph(vector<int> adj[], int m) //Tranverse the graph
-{
-    for (int i = 0; i < m; i++)
-    {
-        int x, y;
-        assert(scanf("%d %d", &x, &y)==2);
-        adj[y].push_back(x);
-    }
-}
-
-int validTree(vector<int> adj[], int n)
+int validTree(vector<int> reversedGraph[], int n)
 {
     for (int v = 1; v <= n; v++)
     {
-        if (adj[v].size() > 2) // node has more than two childs
+        if (reversedGraph[v].size() > 2) // node has more than two childs
             return -1;
-        for (auto u : adj[v])
+        for (auto u : reversedGraph[v])
         {
             if (u == v) // looks for cicles
             {
@@ -52,12 +41,12 @@ int validTree(vector<int> adj[], int n)
     return 1;
 }
 
-int printTree(vector<int> adj[], int n)
+int printTree(vector<int> reversedGraph[], int n)
 {
     for (int v = 1; v <= n; v++)
     {
         cout << "Head[" << v << "]";
-        for (auto u : adj[v])
+        for (auto u : reversedGraph[v])
         {
             cout << "-> [" << u << "] ";
         }
@@ -66,7 +55,43 @@ int printTree(vector<int> adj[], int n)
     return 1;
 }
 
-void lca(vector<int> adj[], int n, int v1, int v2){
+void bfs(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, int v){
+
+    int visited[n+1];
+    for(int i = 1; i <= n; i++){
+        visited[i] = 0;
+        pi[i] = 0;
+    }
+    vector<int> queue;
+    queue.push_back(v);
+    while (queue.size() != 0){
+        int u = queue.front();
+        queue.erase(queue.begin());
+        for(auto x: reversedGraph[u]){
+            if(!visited[x]){
+                visited[x] = 1;
+                pi[x] = u;
+                queue.push_back(x);
+                ancestors.push_back(x);
+            }   
+        }
+    }
+
+    for(auto y: ancestors)
+        cout << y << "\n";
+}
+
+void lca(vector<int> reversedGraph[], int n, int v1, int v2){
+
+    vector<int> ancestorsV1;
+    vector<int> ancestorsV2;
+    int piV1[n+1];
+    int piV2[n+1];
+
+    bfs(reversedGraph,ancestorsV1,piV1, n, v1);
+    bfs(reversedGraph,ancestorsV2,piV2, n, v2);
+
+
 
 }
 
@@ -78,13 +103,6 @@ void dfs(bool visited[],vector<int> adj[], int vertex){
     for (int i=0;i<sizeof(adj[vertex-1]) / sizeof(adj[vertex-1][0]);i++)
         if (!visited[adj[vertex-1][i]])
             dfs(visited,adj,adj[vertex-1][i]);
-}
-
-
-void printVector(bool vector[],int n){
-    for (int i=0;i<n;i++){
-        cout << vector[i] << " ";
-    }
 }
 
 int main()
@@ -99,15 +117,15 @@ int main()
     for (int i=0;i<n;i++){
         visited[i]=false;
     }
-    //printVector(visited,n);
-    vector<int> adj[n + 1];
-    adjReverseGraph(adj, m);
+    
+    vector<int> reversedGraph[n + 1];
+    readInput(reversedGraph, m);
 
-    if(n < 1 || m < 0 || !validTree(adj, n))
+    if(n < 1 || m < 0 || !validTree(reversedGraph, n))
         cout << "0\n";
     else
-        lca(adj, n, v1, v2);
-    printTree(adj,n);
+        lca(reversedGraph, n, v1, v2);
+    
     //dfs(visited,adj,v1);
 
     return 0;
