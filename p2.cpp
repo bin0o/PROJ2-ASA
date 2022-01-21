@@ -73,7 +73,7 @@ int main()
         cout << "0\n";
     else
         lca(adj, n, v1, v2);
-    printTree(adj,m);
+    printTree(adj,n);
 
     return 0;
 }
