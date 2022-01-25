@@ -11,8 +11,12 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 
-void readInput(vector<int> reversedGraph[], int m)
-{
+int v1, v2 , n, m;
+vector<vector<int>> reversedGraph;
+
+void readInput()
+{   
+    reversedGraph.resize(n+1);
     for (int i = 0; i < m; i++)
     {
         int x, y;
@@ -21,13 +25,13 @@ void readInput(vector<int> reversedGraph[], int m)
     }
 }
 
-bool checksCyclesInNode(vector<int> reversedGraph[],int pile[],int visited[],int vertex){
+bool checksCyclesInNode(int pile[],int visited[],int vertex){
     if (!visited[vertex]){
         visited[vertex]=1;
         pile[vertex]=1;
 
         for (auto x:reversedGraph[vertex]){
-            if(!visited[x] && checksCyclesInNode(reversedGraph,pile,visited,x))
+            if(!visited[x] && checksCyclesInNode(pile,visited,x))
                 return true;
             else if(pile[x])
                 return true;
@@ -37,7 +41,7 @@ bool checksCyclesInNode(vector<int> reversedGraph[],int pile[],int visited[],int
     return false;
 }
 
-bool validTree(vector<int> reversedGraph[], int n)
+bool validTree()
 {
     int visited[n+1];
     int pile[n+1];
@@ -49,13 +53,13 @@ bool validTree(vector<int> reversedGraph[], int n)
     {
         if (reversedGraph[v].size() > 2) // node has more than two parents
             return false;
-        if (checksCyclesInNode(reversedGraph,pile,visited,v))
+        if (checksCyclesInNode(pile,visited,v))
             return false;
     }
     return true;
 }
 
-void bfs(vector<int> reversedGraph[], vector<int> &ancestors, int pi[],int visited[], int n, int v){
+void bfs(vector<int> &ancestors, int pi[], int visited[], int v){
 
     for(int i = 1; i <= n; i++){
         visited[i] = 0;
@@ -79,7 +83,7 @@ void bfs(vector<int> reversedGraph[], vector<int> &ancestors, int pi[],int visit
     }
 }
 
-void lca(vector<int> reversedGraph[], int n, int v1, int v2){
+void lca(int v1, int v2){
 
     unordered_map<int,int> common_seen;
     vector<int> ancestorsV1;
@@ -92,8 +96,8 @@ void lca(vector<int> reversedGraph[], int n, int v1, int v2){
     int visitedV1[n+1];
     int visitedV2[n+1];
 
-    bfs(reversedGraph,ancestorsV1,piV1,visitedV1, n, v1);
-    bfs(reversedGraph,ancestorsV2,piV2,visitedV2, n, v2);
+    bfs(ancestorsV1,piV1,visitedV1, v1);
+    bfs(ancestorsV2,piV2,visitedV2, v2);
 
     for(auto x: ancestorsV1){
         if(visitedV2[x]){
@@ -116,18 +120,15 @@ void lca(vector<int> reversedGraph[], int n, int v1, int v2){
 
 int main()
 {   
-    int v1, v2 , n, m;
-
     assert(scanf("%d %d", &v1, &v2)==2);
     assert(scanf("%d %d", &n, &m)==2);
     
-    vector<int> reversedGraph[n+1];
-    readInput(reversedGraph, m);
+    readInput();
 
-    if(n < 1 || m < 0 || !validTree(reversedGraph, n))
+    if(n < 1 || m < 0 || !validTree())
         cout << "0\n";
     else
-        lca(reversedGraph, n, v1, v2);
+        lca(v1, v2);
 
     return 0;
 }
