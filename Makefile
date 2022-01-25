@@ -5,4 +5,4 @@ p2:
 testfile:
 	./a.out < testfile.in > testfile.out
 clean: 
-	rm a.out testfile.out 
+	rm a.out testfile.out p2

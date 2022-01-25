@@ -24,22 +24,40 @@ void readInput(vector<int> reversedGraph[], int m)
     }
 }
 
-int validTree(vector<int> reversedGraph[], int n)
-{
-    for (int v = 1; v <= n; v++)
-    {
-        if (reversedGraph[v].size() > 2) // node has more than two childs
-            return -1;
-        for (auto u : reversedGraph[v])
-        {
-            if (u == v) // looks for cicles
-            {
-                return -1;
-            }
+bool checksCyclesInNode(vector<int> reversedGraph[],int pile[],int visited[],int vertex){
+    if (!visited[vertex]){
+        visited[vertex]=1;
+        pile[vertex]=1;
+
+        for (auto x:reversedGraph[vertex]){
+            if(!visited[x] && checksCyclesInNode(reversedGraph,pile,visited,x))
+                return true;
+            else if(pile[x])
+                return true;
         }
     }
-    return 1;
+    pile[vertex]=0;
+    return false;
 }
+
+bool validTree(vector<int> reversedGraph[], int n)
+{
+    int visited[n+1];
+    int pile[n+1];
+    for(int i = 1; i <= n; i++){
+        visited[i] = 0;
+        pile[i]=0;
+    }
+    for (int v = 1; v <= n; v++)
+    {
+        if (reversedGraph[v].size() > 2) // node has more than two parents
+            return false;
+        if (checksCyclesInNode(reversedGraph,pile,visited,v))
+            return false;
+    }
+    return true;
+}
+
 
 int printTree(vector<int> reversedGraph[], int n)
 {
@@ -76,10 +94,13 @@ void bfs(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, i
             }   
         }
     }
-
+    cout << v << ": ";
     for(auto y: ancestors)
-        cout << y << "\n";
+        cout << y << " ";
+
+    cout << "\n";
 }
+
 
 void lca(vector<int> reversedGraph[], int n, int v1, int v2){
 
@@ -95,30 +116,14 @@ void lca(vector<int> reversedGraph[], int n, int v1, int v2){
 
 }
 
-//dfs que precisa de levar fix
-void dfs(bool visited[],vector<int> adj[], int vertex){
-    visited[vertex-1] = true;
-    cout << vertex << " ";
-
-    for (int i=0;i<sizeof(adj[vertex-1]) / sizeof(adj[vertex-1][0]);i++)
-        if (!visited[adj[vertex-1][i]])
-            dfs(visited,adj,adj[vertex-1][i]);
-}
-
 int main()
 {   
     int v1, v2 , n, m;
 
     assert(scanf("%d %d", &v1, &v2)==2);
     assert(scanf("%d %d", &n, &m)==2);
-    bool visited[n];
-
-    //Inicializar o vetor a falso
-    for (int i=0;i<n;i++){
-        visited[i]=false;
-    }
     
-    vector<int> reversedGraph[n + 1];
+    vector<int> reversedGraph[n+1];
     readInput(reversedGraph, m);
 
     if(n < 1 || m < 0 || !validTree(reversedGraph, n))
@@ -126,7 +131,7 @@ int main()
     else
         lca(reversedGraph, n, v1, v2);
     
-    //dfs(visited,adj,v1);
+    // printTree(reversedGraph,n);
 
     return 0;
 }
