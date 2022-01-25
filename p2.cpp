@@ -11,14 +11,6 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 
-unordered_map<int,int> seenv2;
-unordered_map<int,int> common_seen;
-
-int v1;
-int v2;
-int n;
-int m;
-
 void readInput(vector<int> reversedGraph[], int m)
 {
     for (int i = 0; i < m; i++)
@@ -63,13 +55,13 @@ bool validTree(vector<int> reversedGraph[], int n)
     return true;
 }
 
-void bfs1(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, int v){
+void bfs(vector<int> reversedGraph[], vector<int> &ancestors, int pi[],int visited[], int n, int v){
 
-    int visited[n+1];
     for(int i = 1; i <= n; i++){
         visited[i] = 0;
         pi[i] = 0;
     }
+    visited[v] = 1;
     ancestors.push_back(v);
     vector<int> queue;
     queue.push_back(v);
@@ -78,32 +70,6 @@ void bfs1(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, 
         queue.erase(queue.begin());
         for(auto x: reversedGraph[u]){
             if(!visited[x]){
-                visited[x] = 1;
-                pi[x] = u;
-                queue.push_back(x);
-                ancestors.push_back(x);
-            }   
-        }
-    }
-}
-
-void bfs2(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, int v){
-
-    int visited[n+1];
-    for(int i = 1; i <= n; i++){
-        visited[i] = 0;
-        pi[i] = 0;
-    }
-    ancestors.push_back(v);
-    seenv2[v] = 1;
-    vector<int> queue;
-    queue.push_back(v);
-    while (queue.size() != 0){
-        int u = queue.front();
-        queue.erase(queue.begin());
-        for(auto x: reversedGraph[u]){
-            if(!visited[x]){
-                seenv2[x] = 1;
                 visited[x] = 1;
                 pi[x] = u;
                 queue.push_back(x);
@@ -115,18 +81,22 @@ void bfs2(vector<int> reversedGraph[], vector<int> &ancestors, int pi[], int n, 
 
 void lca(vector<int> reversedGraph[], int n, int v1, int v2){
 
+    unordered_map<int,int> common_seen;
     vector<int> ancestorsV1;
     vector<int> ancestorsV2;
     vector<int> common_ancestors;
 
     int piV1[n+1];
     int piV2[n+1];
+    
+    int visitedV1[n+1];
+    int visitedV2[n+1];
 
-    bfs1(reversedGraph,ancestorsV1,piV1, n, v1);
-    bfs2(reversedGraph,ancestorsV2,piV2, n, v2);
+    bfs(reversedGraph,ancestorsV1,piV1,visitedV1, n, v1);
+    bfs(reversedGraph,ancestorsV2,piV2,visitedV2, n, v2);
 
     for(auto x: ancestorsV1){
-        if(seenv2[x]){
+        if(visitedV2[x]){
             common_ancestors.push_back(x);
             common_seen[x] = 1;
         }
