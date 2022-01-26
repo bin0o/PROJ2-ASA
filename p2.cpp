@@ -25,46 +25,38 @@ void readInput()
     }
 }
 
-bool checksCyclesInNode(int pile[],int visited[],int vertex){
+bool checksCyclesInNode(vector<int> &visitedInRecursion,vector<int> &visited,int vertex){
     if (!visited[vertex]){
         visited[vertex]=1;
-        pile[vertex]=1;
+        visitedInRecursion[vertex]=1;
 
         for (auto x:reversedGraph[vertex]){
-            if(!visited[x] && checksCyclesInNode(pile,visited,x))
+            if(!visited[x] && checksCyclesInNode(visitedInRecursion,visited,x))
                 return true;
-            else if(pile[x])
+            else if(visitedInRecursion[x]) //terminal case
                 return true;
         }
     }
-    pile[vertex]=0;
+    //puts every vertex that he has passed to 0 in visitedInRecursion
+    visitedInRecursion[vertex]=0;
     return false;
 }
 
 bool validTree()
 {
-    int visited[n+1];
-    int pile[n+1];
-    for(int i = 1; i <= n; i++){
-        visited[i] = 0;
-        pile[i]=0;
-    }
+    vector<int> visited(n+1,0);
+    vector<int> visitedInRecursion(n+1,0);
     for (int v = 1; v <= n; v++)
     {
         if (reversedGraph[v].size() > 2) // node has more than two parents
             return false;
-        if (checksCyclesInNode(pile,visited,v))
+        if (checksCyclesInNode(visitedInRecursion,visited,v))
             return false;
     }
     return true;
 }
 
-void bfs(vector<int> &ancestors, int pi[], int visited[], int v){
-
-    for(int i = 1; i <= n; i++){
-        visited[i] = 0;
-        pi[i] = 0;
-    }
+void bfs(vector<int> &ancestors, vector<int> &pi, vector<int> &visited, int v){
     visited[v] = 1;
     ancestors.push_back(v);
     vector<int> queue;
@@ -90,11 +82,11 @@ void lca(int v1, int v2){
     vector<int> ancestorsV2;
     vector<int> common_ancestors;
 
-    int piV1[n+1];
-    int piV2[n+1];
+    vector<int> piV1(n+1,0);
+    vector<int> piV2(n+1,0);
     
-    int visitedV1[n+1];
-    int visitedV2[n+1];
+    vector<int> visitedV1(n+1,0);
+    vector<int> visitedV2(n+1,0);
 
     bfs(ancestorsV1,piV1,visitedV1, v1);
     bfs(ancestorsV2,piV2,visitedV2, v2);
