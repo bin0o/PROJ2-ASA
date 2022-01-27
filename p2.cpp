@@ -67,10 +67,10 @@ void bfs(vector<int> &ancestors, vector<int> &pi, vector<int> &visited, int v){
         for(auto x: reversedGraph[u]){
             if(!visited[x]){
                 visited[x] = 1;
-                pi[x] = u;
                 queue.push_back(x);
                 ancestors.push_back(x);
-            }   
+            }
+            pi[x]=u;   
         }
     }
 }
@@ -110,6 +110,21 @@ void lca(int v1, int v2){
     }
 }
 
+
+int printTree(vector<vector<int>> adj, int n)
+{
+    for (int v = 1; v <= n; v++)
+    {
+        cout << "Head[" << v << "]";
+        for (auto u : adj[v])
+        {
+            cout << "-> [" << u << "] ";
+        }
+        printf("\n");
+    }
+    return 1;
+}
+
 int main()
 {   
     assert(scanf("%d %d", &v1, &v2)==2);
@@ -119,8 +134,10 @@ int main()
 
     if(n < 1 || m < 0 || !validTree())
         cout << "0\n";
-    else
+    else{
         lca(v1, v2);
+        //printTree(reversedGraph,n);
+    }
 
     return 0;
 }
