@@ -56,7 +56,7 @@ bool validTree()
     return true;
 }
 
-void bfs(vector<int> &ancestors, vector<int> &pi, vector<int> &visited, int v){
+void bfs(vector<int> &ancestors, vector<vector<int>> &pi, vector<int> &visited, int v){
     visited[v] = 1;
     ancestors.push_back(v);
     vector<int> queue;
@@ -65,31 +65,28 @@ void bfs(vector<int> &ancestors, vector<int> &pi, vector<int> &visited, int v){
         int u = queue.front();
         queue.erase(queue.begin());
         for(auto x: reversedGraph[u]){
+            pi[x].push_back(u);
             if(!visited[x]){
                 visited[x] = 1;
                 queue.push_back(x);
                 ancestors.push_back(x);
             }
-            pi[x]=u;   
         }
     }
 }
 
 void lca(int v1, int v2){
 
-    unordered_map<int,int> common_seen;
     vector<int> ancestorsV1;
     vector<int> ancestorsV2;
     vector<int> common_ancestors;
-
-    vector<int> piV1(n+1,0);
-    vector<int> piV2(n+1,0);
-    
+    unordered_map<int,int> common_seen;
+    vector<vector<int>> pi(n+1);
     vector<int> visitedV1(n+1,0);
     vector<int> visitedV2(n+1,0);
 
-    bfs(ancestorsV1,piV1,visitedV1, v1);
-    bfs(ancestorsV2,piV2,visitedV2, v2);
+    bfs(ancestorsV1,pi,visitedV1, v1);
+    bfs(ancestorsV2,pi,visitedV2, v2);
 
     for(auto x: ancestorsV1){
         if(visitedV2[x]){
@@ -103,7 +100,14 @@ void lca(int v1, int v2){
     else{
         sort(common_ancestors.begin(), common_ancestors.end());
         for(auto x: common_ancestors){
-            if(!common_seen[piV1[x]] && !common_seen[piV2[x]])
+            int flag = 0;
+            for(auto v: pi[x]){
+                if(common_seen[v]){
+                    flag = 1;
+                    break;
+                }
+            }
+            if(!flag)
                 cout << x << " ";
         }
         cout << endl;
@@ -134,10 +138,7 @@ int main()
 
     if(n < 1 || m < 0 || !validTree())
         cout << "0\n";
-    else{
+    else
         lca(v1, v2);
-        //printTree(reversedGraph,n);
-    }
-
     return 0;
 }
