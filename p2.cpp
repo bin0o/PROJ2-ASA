@@ -6,6 +6,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -13,6 +14,11 @@ using namespace std;
 
 int v1, v2 , n, m;
 vector<vector<int>> reversedGraph;
+
+
+vector<int> visitedInIteration;
+vector<int> visited;
+
 
 void readInput()
 {   
@@ -25,75 +31,94 @@ void readInput()
     }
 }
 
-bool checksCyclesInNode(vector<int> &visitedInRecursion,vector<int> &visited,int vertex){
-    if (!visited[vertex]){
-        visited[vertex]=1;
-        visitedInRecursion[vertex]=1;
+bool checksCyclesInNode(int v){
+    if (!visited[v]){
+        visited[v]=1;
+        visitedInIteration[v]=1;
 
-        for (auto x:reversedGraph[vertex]){
-            if(!visited[x] && checksCyclesInNode(visitedInRecursion,visited,x))
+        for (auto x:reversedGraph[v]){
+            if(!visited[x] && checksCyclesInNode(x))
                 return true;
-            else if(visitedInRecursion[x]) //terminal case
+            else if(visitedInIteration[x]) //terminal case
                 return true;
         }
     }
-    //puts every vertex that he has passed to 0 in visitedInRecursion
-    visitedInRecursion[vertex]=0;
+    //puts every v that he has passed to 0 in visitedInIteration
+    visitedInIteration[v]=0;
     return false;
 }
 
 bool validTree()
 {
-    vector<int> visited(n+1,0);
-    vector<int> visitedInRecursion(n+1,0);
+    visited.resize(n+1,0);
+    visitedInIteration.resize(n+1,0);
     for (int v = 1; v <= n; v++)
     {
         if (reversedGraph[v].size() > 2) // node has more than two parents
             return false;
-        if (checksCyclesInNode(visitedInRecursion,visited,v))
+        if (checksCyclesInNode(v))
             return false;
     }
     return true;
 }
 
-void bfs(vector<int> &ancestors, vector<vector<int>> &pi, vector<int> &visited, int v){
-    visited[v] = 1;
-    ancestors.push_back(v);
-    vector<int> queue;
-    queue.push_back(v);
-    while (queue.size() != 0){
+void bfs(vector<vector<int>> &pi, vector<int> &visitedV1, vector<int> &ancestorsV1){
+    visitedV1[v1] = 1;
+    ancestorsV1[v1]=1;
+    queue<int> queue;
+    queue.push(v1);
+    while (!queue.empty()){
         int u = queue.front();
-        queue.erase(queue.begin());
+        queue.pop();
         for(auto x: reversedGraph[u]){
             pi[x].push_back(u);
-            if(!visited[x]){
-                visited[x] = 1;
-                queue.push_back(x);
-                ancestors.push_back(x);
+            if(!visitedV1[x]){
+                visitedV1[x] = 1;
+                queue.push(x);
+                ancestorsV1[x]=1;
             }
         }
     }
 }
 
-void lca(int v1, int v2){
-
-    vector<int> ancestorsV1;
-    vector<int> ancestorsV2;
-    vector<int> common_ancestors;
-    unordered_map<int,int> common_seen;
-    vector<vector<int>> pi(n+1);
-    vector<int> visitedV1(n+1,0);
-    vector<int> visitedV2(n+1,0);
-
-    bfs(ancestorsV1,pi,visitedV1, v1);
-    bfs(ancestorsV2,pi,visitedV2, v2);
-
-    for(auto x: ancestorsV1){
-        if(visitedV2[x]){
-            common_ancestors.push_back(x);
-            common_seen[x] = 1;
+void bfs2(vector<int> &common_ancestors,vector<vector<int>> &pi,unordered_map<int,int> &common_seen, vector<int> &visitedV2, vector<int> &ancestorsV1){
+    visitedV2[v2] = 1;
+    if(ancestorsV1[v2]){
+        common_ancestors.push_back(v2);
+        common_seen[v2]=1;
+    }
+    queue<int> queue;
+    queue.push(v2);
+    while (!queue.empty()){
+        int u = queue.front();
+        queue.pop();
+        for(auto x: reversedGraph[u]){
+            pi[x].push_back(u);
+            if(!visitedV2[x]){
+                visitedV2[x] = 1;
+                queue.push(x);
+                if (ancestorsV1[x]){
+                    common_seen[x]=1;
+                    common_ancestors.push_back(x);
+                    
+                }
+            }
         }
     }
+}
+
+void lca(){
+    
+    vector<int> ancestorsV1(n+1,0);
+    vector<int> visitedV1(n+1,0);
+    vector<int> visitedV2(n+1,0);
+    vector<int> common_ancestors;
+    vector<vector<int>> pi(n+1);
+    unordered_map<int,int> common_seen;
+
+    bfs(pi,visitedV1,ancestorsV1);
+    bfs2(common_ancestors,pi,common_seen,visitedV2,ancestorsV1);
+
     int size = common_ancestors.size();
     if(size == 0)
         cout << "-\n";
@@ -114,21 +139,6 @@ void lca(int v1, int v2){
     }
 }
 
-
-int printTree(vector<vector<int>> adj, int n)
-{
-    for (int v = 1; v <= n; v++)
-    {
-        cout << "Head[" << v << "]";
-        for (auto u : adj[v])
-        {
-            cout << "-> [" << u << "] ";
-        }
-        printf("\n");
-    }
-    return 1;
-}
-
 int main()
 {   
     assert(scanf("%d %d", &v1, &v2)==2);
@@ -139,6 +149,6 @@ int main()
     if(n < 1 || m < 0 || !validTree())
         cout << "0\n";
     else
-        lca(v1, v2);
+        lca();
     return 0;
 }
